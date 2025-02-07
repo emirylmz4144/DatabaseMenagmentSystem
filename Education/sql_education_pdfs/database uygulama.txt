@@ -1,0 +1,135 @@
+///Tablolar
+--------------------------
+Kitaplar 
+----------
+KitapID 
+KitapAdi 
+YazarID (f)
+YayineviID (f)
+
+Yazarlar 
+----------
+YazarID
+AdSoyad  
+
+Yayinevleri 
+----------
+YayineviID
+YayineviAdi 
+
+ OduncKitaplar 
+--------
+OduncID 
+KitapID (f)
+UyeID (f)
+OduncTarihi 
+TeslimTarihi 
+
+Uyeler 
+------------
+UyeID 
+AdSoyad 
+Telefon 
+
+Kategoriler 
+---------
+KategoriID 
+KategoriAdi 
+
+KitapKategoriler 
+----------------
+KitapID 
+KategoriID (f)
+
+Sorular
+1) Bir kitabın adı, yazar adı ve yayınevi adını listeleyen bir sorgusu
+2) Bir üyenin adı ve aldığı kitapların adlarını listeleyen bir sorgusu
+3) Bir kategorinin adı ve o kategoriye ait kitapların adlarını listeleyen bir sorgusu
+4) Bir yazarın adı, yazdığı kitapların adları ve bu kitapların yayınevleri ile birlikte listelendiği bir sorgusu
+
+
+Tablolar
+-- Kitaplar tablosu
+CREATE TABLE Kitaplar (
+    KitapID INT PRIMARY KEY,
+    KitapAdi VARCHAR(255),
+    YazarID INT,
+    YayineviID INT,
+    CONSTRAINT fk_Kitaplar_Yazar FOREIGN KEY (YazarID) REFERENCES Yazarlar(YazarID),
+    CONSTRAINT fk_Kitaplar_Yayinevi FOREIGN KEY (YayineviID) REFERENCES Yayinevleri(YayineviID)
+);
+
+-- Yazarlar tablosu
+CREATE TABLE Yazarlar (
+    YazarID INT PRIMARY KEY,
+    AdSoyad VARCHAR(255)
+);
+
+-- Yayınevleri tablosu
+CREATE TABLE Yayinevleri (
+    YayineviID INT PRIMARY KEY,
+    YayineviAdi VARCHAR(255)
+);
+
+-- Ödünç Kitaplar tablosu
+CREATE TABLE OduncKitaplar (
+    OduncID INT PRIMARY KEY,
+    KitapID INT,
+    UyeID INT,
+    OduncTarihi DATE,
+    TeslimTarihi DATE,
+    CONSTRAINT fk_OduncKitaplar_Kitaplar FOREIGN KEY (KitapID) REFERENCES Kitaplar(KitapID),
+    CONSTRAINT fk_OduncKitaplar_Uyeler FOREIGN KEY (UyeID) REFERENCES Uyeler(UyeID)
+);
+
+-- Üyeler tablosu
+CREATE TABLE Uyeler (
+    UyeID INT PRIMARY KEY,
+    AdSoyad VARCHAR(255),
+    Telefon VARCHAR(15)
+);
+
+-- Kategoriler tablosu
+CREATE TABLE Kategoriler (
+    KategoriID INT PRIMARY KEY,
+    KategoriAdi VARCHAR(255)
+);
+
+-- Kitap-Kategori ilişki tablosu
+CREATE TABLE KitapKategoriler (
+    KitapID INT,
+    KategoriID INT,
+    PRIMARY KEY (KitapID, KategoriID),
+    CONSTRAINT fk_KitapKategoriler_Kitaplar FOREIGN KEY (KitapID) REFERENCES Kitaplar(KitapID),
+    CONSTRAINT fk_KitapKategoriler_Kategoriler FOREIGN KEY (KategoriID) REFERENCES Kategoriler(KategoriID)
+);
+
+
+Cevaplar
+---------------------
+1)
+SELECT Kitaplar.KitapAdi, Yazarlar.AdSoyad AS YazarAdi, Yayinevleri.YayineviAdi
+FROM Kitaplar
+JOIN Yazarlar ON Kitaplar.YazarID = Yazarlar.YazarID
+JOIN Yayinevleri ON Kitaplar.YayineviID = Yayinevleri.YayineviID;
+
+2)
+SELECT Uyeler.AdSoyad AS UyeAdi, Kitaplar.KitapAdi
+FROM Uyeler
+JOIN OduncKitaplar ON Uyeler.UyeID = OduncKitaplar.UyeID
+JOIN Kitaplar ON OduncKitaplar.KitapID = Kitaplar.KitapID;
+
+3)
+SELECT Kategoriler.KategoriAdi, Kitaplar.KitapAdi
+FROM Kategoriler
+JOIN KitapKategoriler ON Kategoriler.KategoriID = KitapKategoriler.KategoriID
+JOIN Kitaplar ON KitapKategoriler.KitapID = Kitaplar.KitapID;
+
+4)
+
+SELECT Yazarlar.AdSoyad AS YazarAdi, Kitaplar.KitapAdi, Yayinevleri.YayineviAdi
+FROM Yazarlar
+JOIN Kitaplar ON Yazarlar.YazarID = Kitaplar.YazarID
+JOIN Yayinevleri ON Kitaplar.YayineviID = Yayinevleri.YayineviID;
+
+

@@ -1,0 +1,127 @@
+Customers 
+-------------------------------
+CustomerID 
+CustomerName 
+Email 
+
+Orders 
+---------------------------------
+OrderID 
+OrderDate 
+CustomerID (f)
+
+Products
+-------------------------
+ProductID 
+ProductName 
+Price 
+
+OrderDetails 
+----------------------------
+OrderDetailID 
+OrderID (f)
+ProductID (f)
+Quantity (miktar)
+
+
+Soru 1) Müşteri adı, e-posta adresi, ve toplam harcanan miktarı gösteren bir sorgu yazın?
+Soru 2) En çok sipariş veren müşterinin adını ve toplam sipariş sayısını bulan bir sorgu yazın?
+Soru 3) Bir müşterinin, belirli bir tarihte verdiği bir siparişin ürün adı, miktarı ve toplam 
+        fiyatını gösteren bir sorgu yazın?
+Soru 4) Belirli bir tarih aralığındaki en çok satılan ürünleri ve satış adetlerini gösteren bir sorgu yazın?
+Soru 5) Herhangi bir müşterinin verdiği son siparişin tarihini ve sipariş detaylarını içeren bir sorgu yazın?
+
+Cevaplar
+-----------------------------------------
+
+Soru 1-------------------
+
+SELECT
+    c.CustomerName,
+    c.Email,
+    SUM(p.Price * od.Quantity) AS TotalSpent
+FROM
+    Customers c
+JOIN
+    Orders o ON c.CustomerID = o.CustomerID
+JOIN
+    OrderDetails od ON o.OrderID = od.OrderID
+JOIN
+    Products p ON od.ProductID = p.ProductID
+GROUP BY
+    c.CustomerID;
+
+
+Soru 2)-----------------
+SELECT
+    c.CustomerName,
+    COUNT(o.OrderID) AS TotalOrders
+FROM
+    Customers c
+JOIN
+    Orders o ON c.CustomerID = o.CustomerID
+GROUP BY
+    c.CustomerID
+ORDER BY
+    TotalOrders DESC
+LIMIT 1;
+
+
+Soru 3)----------------
+SELECT
+    c.CustomerName,
+    p.ProductName,
+    od.Quantity,
+    (p.Price * od.Quantity) AS TotalPrice
+FROM
+    Customers c
+JOIN
+    Orders o ON c.CustomerID = o.CustomerID
+JOIN
+    OrderDetails od ON o.OrderID = od.OrderID
+JOIN
+    Products p ON od.ProductID = p.ProductID
+WHERE
+    o.OrderDate = 'belirli_tarih'; ///Burada belirli tarih kısmına kendiniz bir tarih girin(Burayı unutmayın yoksa çalışmaz....)
+
+
+
+Soru 4)------------------
+
+SELECT
+    p.ProductName,
+    SUM(od.Quantity) AS TotalSold
+FROM
+    OrderDetails od
+JOIN
+    Products p ON od.ProductID = p.ProductID
+JOIN
+    Orders o ON od.OrderID = o.OrderID
+WHERE
+    o.OrderDate BETWEEN 'baslangic_tarihi' AND 'bitis_tarihi' ///Yukarıdaki gibi tarih değerlerinizi girin
+GROUP BY
+    p.ProductID
+ORDER BY
+    TotalSold DESC;
+
+Soru 5)-----------------------
+
+SELECT
+    c.CustomerName,
+    o.OrderDate,
+    p.ProductName,
+    od.Quantity,
+    (p.Price * od.Quantity) AS TotalPrice
+FROM
+    Customers c
+JOIN
+    Orders o ON c.CustomerID = o.CustomerID
+JOIN
+    OrderDetails od ON o.OrderID = od.OrderID
+JOIN
+    Products p ON od.ProductID = p.ProductID
+WHERE
+    c.CustomerID = 'musteri_id' //Buraya kendi tablonuzda bulunan id değerini girin 
+ORDER BY
+    o.OrderDate DESC
+LIMIT 1;
